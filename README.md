@@ -5,6 +5,5 @@ Junwen Liao (廖俊文) is now an undergraduate student in the College of Mathem
 
 ## Publication
 1. **Amino-acid classification based on terahertz absorption spectroscopy with Gaussian process and maximum likelihood**
-   
-   Junwen Liao, Bo Wang, Zhiguo Wang, Liguo Zhu. [pdf](https://www.sciencedirect.com/science/article/abs/pii/S092540052300521X)
+   Junwen Liao, Bo Wang, Zhiguo Wang, Liguo Zhu. [[pdf]](https://www.sciencedirect.com/science/article/abs/pii/S092540052300521X)
 
