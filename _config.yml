@@ -1,3 +1,17 @@
+# Merge these fields into the root `_config.yml` of a fresh al-folio repository.
+title: Junwen Liao
+first_name: Junwen
+last_name: Liao
+email: liaojw24@mails.tsinghua.edu.cn
+description: >-
+  Personal academic website of Junwen Liao, a Ph.D. candidate in mathematics at
+  Qiuzhen College, Tsinghua University.
+keywords: >-
+  AI for science, protein structure prediction, computational imaging,
+  cryo-EM, AlphaFold
+
+github_username: jwliaomath
+scholar_userid: sktLZj0AAAAJ
 # -----------------------------------------------------------------------------
 # Site settings
 # -----------------------------------------------------------------------------
