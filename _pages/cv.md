@@ -2,7 +2,7 @@
 layout: cv
 title: cv
 permalink: /cv/
-nav: true
+nav: false
 nav_order: 5
 cv_pdf:
 description: Academic CV.
