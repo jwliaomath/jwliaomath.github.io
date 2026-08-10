@@ -1,9 +1,9 @@
 metadata:
-  last_updated: '2026-07-20'
+  last_updated: '2026-08-10'
 papers:
   sktLZj0AAAAJ:d1gkVwhDpl0C:
     citations: 0
-    title: Fine-tune AlphaFold with limited cryo-EM observations
+    title: Fine-tuning AlphaFold with limited cryo-EM observations
     year: '2026'
   sktLZj0AAAAJ:u-x6o8ySG0sC:
     citations: 14
