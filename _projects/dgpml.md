@@ -4,7 +4,8 @@ title: DGPML for THz Spectroscopy
 description: Amino-acid classification from terahertz absorption spectra.
 img: assets/img/dgpml.png
 importance: 2
-category: research
+category: archived
+published: false
 related_publications: liao2023aminoacid
 ---
 
