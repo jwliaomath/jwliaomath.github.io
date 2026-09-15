@@ -10,4 +10,5 @@ nav_order: 4
 ## Teaching Assistant
 
 - **Linear Algebra**, Tsinghua University, Fall 2024.
+- **Linear Algebra**, Tsinghua University, Fall 2026.
 
