@@ -378,6 +378,7 @@ scholar:
   details_link: Details
 
   query: "@*"
+  # Publication sections are selected explicitly by each page.
   group_by: year
   group_order: descending
 
