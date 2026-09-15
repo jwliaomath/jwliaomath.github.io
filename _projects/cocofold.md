@@ -3,7 +3,7 @@ layout: page
 title: CoCoFold
 description: Fine-tuning AlphaFold with limited cryo-EM observations.
 img: assets/img/pipeline.png
-importance: 1
+importance: 0
 category: research
 related_publications: true
 ---
