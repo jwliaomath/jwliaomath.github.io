@@ -21,7 +21,7 @@ latest_posts:
   enabled: false
 ---
 
-I am a second-year Ph.D. candidate in mathematics at Qiuzhen College, Tsinghua
+I am a third-year Ph.D. candidate in mathematics at Qiuzhen College, Tsinghua
 University, advised by Prof. Chenglong Bao. My current research focuses on
 combining AlphaFold with cryo-EM observations for protein structure prediction.
 
