@@ -1,0 +1,1 @@
+import{generatePuzzle}from"./puzzle.js";self.onmessage=e=>{const{difficulty:s,recent:t}=e.data;try{self.postMessage({ok:!0,game:generatePuzzle(s,t)})}catch(e){self.postMessage({ok:!1,error:e.message})}};

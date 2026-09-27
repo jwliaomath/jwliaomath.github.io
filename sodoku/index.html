@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f8fe">
+  <meta name="description" content="随时在电脑或手机浏览器中玩的经典数独，带有可开关的候选数字辅助。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>数独 · 经典游戏</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23265fd5'/%3E%3Cpath d='M24 7v50M40 7v50M7 24h50M7 40h50' stroke='white' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23ffd468'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">▦</span><span>数独</span><span class="brand-caption">经典游戏</span></div>
+      <div class="topbar-actions">
+        <button id="records-button" class="text-button" type="button">成绩</button>
+        <button id="rules-button" class="text-button" type="button">玩法与技巧</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <section class="game-column" aria-label="数独棋盘">
+        <div class="game-heading">
+          <div><span class="eyebrow">当前关卡</span><h1 id="level-title">简单</h1><span id="mode-badge" class="mode-badge">宽松模式</span></div>
+          <div class="stats">
+            <div id="mistake-stat" hidden><span>错误</span><strong id="mistakes">0</strong></div>
+            <div><span>用时</span><strong id="timer">00:00</strong></div>
+          </div>
+        </div>
+        <div class="board-wrap">
+          <div id="board" class="board" role="grid" aria-label="9乘9数独棋盘"></div>
+          <div id="board-cover" class="board-cover" hidden>
+            <span id="cover-title">已暂停</span>
+            <button id="resume-button" class="primary-button" type="button">继续游戏</button>
+          </div>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite">点击空格，再选择数字。</div>
+      </section>
+
+      <aside class="control-column" aria-label="游戏操作">
+        <div class="control-card setup-card">
+          <div class="section-head"><h2>新的一局</h2></div>
+          <div class="new-game-row">
+            <label class="sr-only" for="difficulty">选择难度</label>
+            <select id="difficulty"><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option><option value="expert">专家</option><option value="master">大师</option></select>
+            <button id="new-button" class="primary-button" type="button">新游戏</button>
+          </div>
+          <label class="mode-row" for="error-mode"><span>新局判错方式</span>
+            <select id="error-mode"><option value="relaxed">宽松：仅提示规则冲突</option><option value="strict">严格：错填立即计数</option></select>
+          </label>
+          <p class="quiet-note">每道题都经过唯一解检查。</p>
+        </div>
+
+        <div class="control-card number-card">
+          <div class="section-head"><h2>填入数字</h2><span id="candidate-label" class="section-note">选择一个空格</span></div>
+          <div id="number-pad" class="number-pad" aria-label="数字键盘"></div>
+          <p id="candidate-summary" class="candidate-summary">也可以使用键盘上的 1–9。</p>
+        </div>
+
+        <div class="control-card tools-card">
+          <div class="section-head"><h2>辅助工具</h2></div>
+          <div class="tool-grid">
+            <button id="undo-button" class="tool-button" type="button"><span aria-hidden="true">↶</span>撤销</button>
+            <button id="erase-button" class="tool-button" type="button"><span aria-hidden="true">⌫</span>擦除</button>
+            <button id="notes-button" class="tool-button" type="button" aria-pressed="false"><span aria-hidden="true">✎</span>笔记</button>
+            <button id="hint-button" class="tool-button" type="button"><span aria-hidden="true">✦</span>提示</button>
+          </div>
+          <label class="assist-toggle" for="assist-switch">
+            <span><strong>候选数字辅助</strong><small>选中格自动排除同行、同列和九宫格已有的数字</small></span>
+            <input id="assist-switch" type="checkbox" role="switch"><span class="switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="secondary-actions">
+          <button id="pause-button" class="text-button" type="button">暂停</button>
+          <button id="restart-button" class="text-button" type="button">重新开始</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="rules-dialog" class="dialog">
+    <div class="dialog-head"><h2>玩法与技巧</h2><button id="close-rules" class="close-button" type="button" aria-label="关闭">×</button></div>
+    <p>在每一行、每一列和每个 3×3 九宫格中，填入 1 到 9，且数字不能重复。</p>
+    <p>先点击空格，再点击数字。默认宽松模式只在已填数字互相冲突，或空格已无候选数时标出矛盾；严格模式会立即指出错填并计数。打开“候选数字辅助”，数字键会标出当前格可以填的数字。</p>
+    <p>电脑上还可以使用方向键移动，按 1–9 填数、Delete 擦除、N 切换笔记、Ctrl+Z 撤销。</p>
+    <p>“提示”分三步：先说解题技巧，再标出相关区域，第三次才填入数字。</p>
+    <h3 class="guide-title">解题技巧 · 从易到难</h3>
+    <p class="guide-intro">候选数是某格按同行、同列、同宫排除后，仍可能填入的数字。高阶技巧会进一步排除候选数；可以用“笔记”记录它们。</p>
+    <div class="technique-guide">
+      <details open><summary><span>1. 单格唯一候选</span><small>简单</small></summary><p>看一个空格，排除同行、同列和九宫格中已经出现的数字。如果只剩一个候选数，就可以填入。例：某格只可能是 4 或 7，而同列已有 4，那么此格就是 7。</p></details>
+      <details><summary><span>2. 行列宫唯一位置</span><small>中等</small></summary><p>换个角度看一个数字：它在某一行、列或九宫格中必须出现一次。如果这个数字在该区域只剩一个可放的位置，即使那个格子还有别的候选数，也能确定它。</p></details>
+      <details><summary><span>3. 区块排除</span><small>中等</small></summary><p>如果数字 5 在一个九宫格里只可能落在同一行，那么这一行的其他九宫格都不能再放 5。反过来，如果某一行的 5 只可能位于同一个九宫格，也可以排除该宫其他行的 5。列同理。</p></details>
+      <details><summary><span>4. 数对与三数组</span><small>困难</small></summary><p>在同一行、列或宫里，若两个格子都只剩 {2, 7}，这两个数字必定占据这两格，可以从该区域其他格排除 2 和 7。这叫显性数对。若两个数字在该区域只可能放入同两格，即使这两格还有别的候选，也可以删去那些多余候选，这叫隐性数对。三数组用同样思路处理三个格与三个数字。</p></details>
+      <details><summary><span>5. X-Wing</span><small>专家</small></summary><p>只观察同一个数字。例：数字 6 在第 2、7 行都只可能位于第 3、8 列；这四个交点形成矩形。无论两行如何分配 6，第 3、8 列的其他行都不能再放 6。行和列也可以互换。</p></details>
+      <details><summary><span>6. Swordfish</span><small>专家</small></summary><p>它是 X-Wing 的三行版本：同一数字在三行中的候选位置，合起来只覆盖同样的三列。于是这三列里其他行的该数字都能排除。也可以从三列出发寻找三行。</p></details>
+      <details><summary><span>7. XY-Wing</span><small>专家</small></summary><p>寻找三个都只有两个候选数的格子：中心格 {2, 7}，与它相关的两翼分别是 {2, 9} 和 {7, 9}。无论中心格填 2 还是 7，两翼中必有一个填 9；因此任何同时看见两翼的格子，都不能填 9。</p></details>
+      <details><summary><span>8. 试探与回退</span><small>大师</small></summary><p>在上述技巧仍找不到确定步骤时，可以选候选数较少的格子，暂作一个假设，继续推理；若出现矛盾，就撤回这个假设。游戏的大师分级会参考求解器处理这类分支的工作量。人也可能找到评分器尚未识别的其他逻辑解法。</p></details>
+    </div>
+  </dialog>
+  <dialog id="confirm-dialog" class="dialog confirm-dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">确认操作</h2>
+    <p id="confirm-message"></p>
+    <div class="dialog-actions">
+      <button id="confirm-cancel" class="secondary-button" type="button">取消</button>
+      <button id="confirm-accept" class="primary-button" type="button">确定</button>
+    </div>
+  </dialog>
+  <dialog id="win-dialog" class="dialog win-dialog" aria-labelledby="win-title">
+    <div id="fireworks" class="fireworks" aria-hidden="true"></div>
+    <h2 id="win-title">恭喜完成！</h2>
+    <p id="win-summary"></p>
+    <form id="record-form">
+      <label class="record-name" for="nickname">给这次成绩署名
+        <input id="nickname" name="nickname" maxlength="16" autocomplete="nickname" placeholder="输入昵称">
+      </label>
+      <div class="dialog-actions">
+        <button id="skip-record" class="secondary-button" type="button">暂不保存</button>
+        <button class="primary-button" type="submit">保存成绩</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="records-dialog" class="dialog records-dialog" aria-labelledby="records-title">
+    <div class="dialog-head"><h2 id="records-title">本机成绩</h2><button id="close-records" class="close-button" type="button" aria-label="关闭">×</button></div>
+    <p class="record-explain">成绩只保存在当前设备。每个难度与模式分别排名。</p>
+    <div class="record-filters">
+      <label>难度<select id="records-difficulty"><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option><option value="expert">专家</option><option value="master">大师</option></select></label>
+      <label>模式<select id="records-mode"><option value="relaxed">宽松模式</option><option value="strict">即时判错</option></select></label>
+    </div>
+    <ol id="record-list" class="record-list"></ol>
+  </dialog>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
