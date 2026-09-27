@@ -18,6 +18,7 @@
     <header class="topbar">
       <div class="brand"><span class="brand-icon" aria-hidden="true">▦</span><span>数独</span><span class="brand-caption">经典游戏</span></div>
       <div class="topbar-actions">
+        <button id="language-button" class="text-button language-button" type="button" aria-label="Switch to English" title="Switch to English">EN</button>
         <button id="records-button" class="text-button" type="button">成绩</button>
         <button id="rules-button" class="text-button" type="button">玩法与技巧</button>
       </div>
@@ -65,10 +66,10 @@
         <div class="control-card tools-card">
           <div class="section-head"><h2>辅助工具</h2></div>
           <div class="tool-grid">
-            <button id="undo-button" class="tool-button" type="button"><span aria-hidden="true">↶</span>撤销</button>
-            <button id="erase-button" class="tool-button" type="button"><span aria-hidden="true">⌫</span>擦除</button>
-            <button id="notes-button" class="tool-button" type="button" aria-pressed="false"><span aria-hidden="true">✎</span>笔记</button>
-            <button id="hint-button" class="tool-button" type="button"><span aria-hidden="true">✦</span>提示</button>
+            <button id="undo-button" class="tool-button" type="button"><span aria-hidden="true">↶</span><span class="tool-label">撤销</span></button>
+            <button id="erase-button" class="tool-button" type="button"><span aria-hidden="true">⌫</span><span class="tool-label">擦除</span></button>
+            <button id="notes-button" class="tool-button" type="button" aria-pressed="false"><span aria-hidden="true">✎</span><span class="tool-label">笔记</span></button>
+            <button id="hint-button" class="tool-button" type="button"><span aria-hidden="true">✦</span><span class="tool-label">提示</span></button>
           </div>
           <label class="assist-toggle" for="assist-switch">
             <span><strong>候选数字辅助</strong><small>选中格自动排除同行、同列和九宫格已有的数字</small></span>
@@ -116,7 +117,7 @@
     <h2 id="win-title">恭喜完成！</h2>
     <p id="win-summary"></p>
     <form id="record-form">
-      <label class="record-name" for="nickname">给这次成绩署名
+      <label class="record-name" for="nickname"><span>给这次成绩署名</span>
         <input id="nickname" name="nickname" maxlength="16" autocomplete="nickname" placeholder="输入昵称">
       </label>
       <div class="dialog-actions">
@@ -129,8 +130,8 @@
     <div class="dialog-head"><h2 id="records-title">本机成绩</h2><button id="close-records" class="close-button" type="button" aria-label="关闭">×</button></div>
     <p class="record-explain">成绩只保存在当前设备。每个难度与模式分别排名。</p>
     <div class="record-filters">
-      <label>难度<select id="records-difficulty"><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option><option value="expert">专家</option><option value="master">大师</option></select></label>
-      <label>模式<select id="records-mode"><option value="relaxed">宽松模式</option><option value="strict">即时判错</option></select></label>
+      <label><span>难度</span><select id="records-difficulty"><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option><option value="expert">专家</option><option value="master">大师</option></select></label>
+      <label><span>模式</span><select id="records-mode"><option value="relaxed">宽松模式</option><option value="strict">即时判错</option></select></label>
     </div>
     <ol id="record-list" class="record-list"></ol>
   </dialog>

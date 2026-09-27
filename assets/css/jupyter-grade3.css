@@ -75,6 +75,10 @@ input[type="checkbox"] {
   line-height: normal;
 }
 
+.delete-button {
+  border: none !important;
+}
+
 .breadcrumb > li {
   font-size: 12pt;
   color: #303030;
