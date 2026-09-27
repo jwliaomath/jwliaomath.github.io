@@ -1,7 +1,7 @@
 import { candidateMask, PEERS, values } from './sudoku.js';
 import { nextPuzzle, warmAll } from './puzzle-service.js';
 import { buildHintPlan, hintMessage } from './hint-plan.js';
-import { boardIssues, entryFeedback, MODES } from './game-rules.js';
+import { boardIssues, clearPeerNotes, entryFeedback, MODES } from './game-rules.js';
 import { addRecord, cleanNickname, topRecords } from './records.js';
 import { applyStaticLanguage, difficultyLabel, language, modeLabel, setLanguage, t } from './i18n.js';
 
@@ -273,9 +273,7 @@ function enterNumber(value) {
     game.tentative[index] = game.tentativeMode;
     const feedback = entryFeedback(game.board, game.solution, index, game.mode);
     if (feedback.countMistake) game.mistakes++;
-    if (value === game.solution[index]) {
-      for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
-    }
+    clearPeerNotes(game.board, game.notes, index);
     if (feedback.conflicts.length) announce('conflicts');
     else if (feedback.countMistake) announce('wrongDigit');
     else announce(game.tentativeMode ? 'tentativeEntered' : 'digitEntered');
@@ -329,7 +327,7 @@ function hint() {
   const value = plan.value;
   game.hintsUsed++;
   game.board[index] = value; game.notes[index] = []; game.tentative[index] = false; game.selected = index;
-  for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
+  clearPeerNotes(game.board, game.notes, index);
   if (game.board.every((n, i) => n === game.solution[i])) { finish(); return; }
   announce('hint', { plan, stage: 3 });
   render(); save();
