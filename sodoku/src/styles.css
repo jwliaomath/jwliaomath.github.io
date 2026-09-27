@@ -17,3 +17,10 @@
 .tool-button .tool-label{font-size:13px;line-height:1.2;color:inherit}
 .topbar-actions .language-button{min-width:38px;border:1px solid #cfdcf0;border-radius:8px;padding:7px 9px;color:#2459be}
 @media(max-width:750px){.tool-button .tool-label{font-size:11px}.topbar-actions .language-button{min-width:30px;padding:6px 5px}}
+.cell.tentative:not(.wrong){color:#a3630b;font-weight:700}
+.cell.tentative:not(.selected):not(.conflict):not(.wrong):not(.hint-region):not(.hint-target){background:#fff8e6;box-shadow:inset 0 0 0 1px #ecd8a9}
+.tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#tentative-button > span[aria-hidden="true"]{color:#a3630b}
+#tentative-button.active{border-color:#dcad59;background:#fff1d4;color:#875313}
+@media(min-width:620px) and (max-width:750px){.tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:750px){.tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
