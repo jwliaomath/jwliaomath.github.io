@@ -38,6 +38,10 @@ for (let value = 1; value <= 9; value++) {
 }
 const digitButtons = [...$('number-pad').children];
 
+function normalizeTentative(tentative, board, puzzle) {
+  return Array.from({ length: 81 }, (_, index) => Boolean(tentative?.[index] && board[index] && !puzzle[index]));
+}
+
 function announce(key, params = {}) {
   lastStatus = { key, params };
   $('status').textContent = key === 'hint' ? hintMessage(params.plan, params.stage, language()) : t(key, params);
@@ -56,7 +60,9 @@ function restore() {
   try {
     const saved = JSON.parse(localStorage.getItem(saveKey));
     if (!saved || saved.version !== 1 || saved.board?.length !== 81 || saved.puzzle?.length !== 81 || saved.solution?.length !== 81 || saved.notes?.length !== 81) return null;
-    saved.history = Array.isArray(saved.history) ? saved.history.slice(-100) : [];
+    saved.tentative = normalizeTentative(saved.tentative, saved.board, saved.puzzle);
+    saved.tentativeMode = Boolean(saved.tentativeMode) && !saved.notesMode;
+    saved.history = Array.isArray(saved.history) ? saved.history.filter(item => item?.board?.length === 81 && item?.notes?.length === 81).slice(-100).map(item => ({ ...item, tentative: normalizeTentative(item.tentative, item.board, saved.puzzle) })) : [];
     saved.selected = Number.isInteger(saved.selected) && saved.selected >= 0 && saved.selected < 81 ? saved.selected : null;
     if (!MODES[saved.mode]) { saved.mode = 'relaxed'; saved.mistakes = 0; }
     saved.hintsUsed = Math.max(0, Number(saved.hintsUsed) || 0);
@@ -71,7 +77,7 @@ function remember(id) {
   try { localStorage.setItem(recentKey, JSON.stringify([...recentIds().filter(x => x !== id), id].slice(-500))); } catch { /* Optional history. */ }
 }
 function snapshot() {
-  game.history.push({ board: game.board.slice(), notes: game.notes.map(list => list.slice()) });
+  game.history.push({ board: game.board.slice(), notes: game.notes.map(list => list.slice()), tentative: game.tentative.slice() });
   if (game.history.length > 100) game.history.shift();
 }
 function editable(index = game?.selected) { return game && index !== null && !game.puzzle[index] && !game.paused && !game.completed && !busy; }
@@ -156,11 +162,15 @@ function render() {
   $('timer').textContent = formatTime(game.elapsed);
   $('notes-button').classList.toggle('active', game.notesMode);
   $('notes-button').setAttribute('aria-pressed', String(game.notesMode));
+  $('tentative-button').classList.toggle('active', game.tentativeMode);
+  $('tentative-button').setAttribute('aria-pressed', String(game.tentativeMode));
   $('assist-switch').checked = game.assist;
   $('pause-button').textContent = t(game.paused ? 'resume' : 'pause');
   $('undo-button').disabled = !game.history.length || game.paused || game.completed;
   $('erase-button').disabled = !editable();
   $('notes-button').disabled = game.paused || game.completed;
+  $('tentative-button').disabled = game.paused || game.completed;
+  $('confirm-button').disabled = !editable() || !game.board[game.selected] || !game.tentative[game.selected];
   $('hint-button').disabled = game.paused || game.completed;
   $('pause-button').disabled = game.completed;
 
@@ -179,6 +189,7 @@ function render() {
     if (i % 9 === 2 || i % 9 === 5) cell.classList.add('box-right');
     if (Math.floor(i / 9) === 2 || Math.floor(i / 9) === 5) cell.classList.add('box-bottom');
     if (game.puzzle[i]) cell.classList.add('fixed');
+    if (value && game.tentative[i]) cell.classList.add('tentative');
     if (peerSet?.has(i)) cell.classList.add('peer');
     if (chosenValue && value === chosenValue) cell.classList.add('same');
     if (i === chosen) cell.classList.add('selected');
@@ -198,7 +209,7 @@ function render() {
       }
       cell.append(notes);
     }
-    const desc = value ? t(game.puzzle[i] ? 'fixedDigit' : 'enteredDigit', { value }) : game.notes[i].length ? t('notes', { values: game.notes[i].join(language() === 'en' ? ', ' : '、') }) : t('emptyCell');
+    const desc = value ? t(game.puzzle[i] ? 'fixedDigit' : game.tentative[i] ? 'tentativeDigit' : 'enteredDigit', { value }) : game.notes[i].length ? t('notes', { values: game.notes[i].join(language() === 'en' ? ', ' : '、') }) : t('emptyCell');
     cell.setAttribute('aria-label', t('cellDescription', { row: Math.floor(i / 9) + 1, col: i % 9 + 1, desc, conflict: conflicting.has(i), target: i === hintTarget, region: hintRegion?.has(i) }));
     cell.setAttribute('aria-selected', String(i === chosen));
   });
@@ -210,7 +221,7 @@ function render() {
     button.classList.toggle('excluded', excluded);
     button.disabled = !canEnter || excluded;
     button.title = excluded ? t('digitExcluded') : '';
-    button.setAttribute('aria-label', t('fillDigit', { value: i + 1 }));
+    button.setAttribute('aria-label', t(game.tentativeMode ? 'fillTentative' : 'fillDigit', { value: i + 1 }));
   });
   if (chosen === null) {
     $('candidate-label').textContent = t('selectEmpty');
@@ -218,13 +229,16 @@ function render() {
   } else if (game.puzzle[chosen]) {
     $('candidate-label').textContent = t('fixedCell');
     $('candidate-summary').textContent = t('fixedCannotEdit');
+  } else if (game.tentative[chosen]) {
+    $('candidate-label').textContent = t('tentativeCell');
+    $('candidate-summary').textContent = t('confirmInstruction');
   } else if (game.assist) {
     const candidates = values(allowed);
-    $('candidate-label').textContent = t('assistOn');
+    $('candidate-label').textContent = t(game.tentativeMode ? 'assistTentativeOn' : 'assistOn');
     $('candidate-summary').textContent = candidates.length ? t('candidates', { values: candidates.join(language() === 'en' ? ', ' : '、') }) : t('noCandidates');
   } else {
-    $('candidate-label').textContent = t(game.notesMode ? 'notesMode' : 'selectDigit');
-    $('candidate-summary').textContent = t(game.notesMode ? 'notesInstructions' : 'keyboard');
+    $('candidate-label').textContent = t(game.notesMode ? 'notesMode' : game.tentativeMode ? 'tentativeMode' : 'selectDigit');
+    $('candidate-summary').textContent = t(game.notesMode ? 'notesInstructions' : game.tentativeMode ? 'tentativeInstructions' : 'keyboard');
   }
   $('board-cover').hidden = !game.paused && !game.completed && !busy;
   $('cover-title').textContent = t(busy ? 'preparing' : game.completed ? 'completed' : 'paused');
@@ -256,6 +270,7 @@ function enterNumber(value) {
     hintState = null;
     game.board[index] = value;
     game.notes[index] = [];
+    game.tentative[index] = game.tentativeMode;
     const feedback = entryFeedback(game.board, game.solution, index, game.mode);
     if (feedback.countMistake) game.mistakes++;
     if (value === game.solution[index]) {
@@ -263,7 +278,7 @@ function enterNumber(value) {
     }
     if (feedback.conflicts.length) announce('conflicts');
     else if (feedback.countMistake) announce('wrongDigit');
-    else announce('digitEntered');
+    else announce(game.tentativeMode ? 'tentativeEntered' : 'digitEntered');
     if (game.board.every((n, i) => n === game.solution[i])) {
       finish(); return;
     }
@@ -274,13 +289,25 @@ function erase() {
   if (!editable()) return;
   const index = game.selected;
   if (!game.board[index] && !game.notes[index].length) return;
-  snapshot(); hintState = null; game.board[index] = 0; game.notes[index] = [];
+  snapshot(); hintState = null; game.board[index] = 0; game.notes[index] = []; game.tentative[index] = false;
   announce('erased'); render(); save();
 }
 function undo() {
   if (!game || !game.history.length || game.paused || game.completed) return;
   hintState = null; Object.assign(game, game.history.pop());
   announce('undone'); render(); save();
+}
+function toggleTentative() {
+  if (!game || game.paused || game.completed) return;
+  game.tentativeMode = !game.tentativeMode;
+  if (game.tentativeMode) game.notesMode = false;
+  announce(game.tentativeMode ? 'tentativeOn' : 'tentativeOff'); render(); save();
+}
+function confirmTentative() {
+  if (!editable() || !game.board[game.selected] || !game.tentative[game.selected]) return;
+  snapshot(); hintState = null;
+  game.tentative[game.selected] = false;
+  announce('confirmed'); render(); save();
 }
 function hint() {
   if (!game || game.paused || game.completed) return;
@@ -301,7 +328,7 @@ function hint() {
   hintState = null;
   const value = plan.value;
   game.hintsUsed++;
-  game.board[index] = value; game.notes[index] = []; game.selected = index;
+  game.board[index] = value; game.notes[index] = []; game.tentative[index] = false; game.selected = index;
   for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
   if (game.board.every((n, i) => n === game.solution[i])) { finish(); return; }
   announce('hint', { plan, stage: 3 });
@@ -317,7 +344,7 @@ async function restart() {
   if (!game || busy) return;
   if (hasProgress() && !await askConfirm('restartConfirm', 'restart')) return;
   hintState = null;
-  game.board = game.puzzle.slice(); game.notes = Array.from({ length: 81 }, () => []);
+  game.board = game.puzzle.slice(); game.notes = Array.from({ length: 81 }, () => []); game.tentative = Array(81).fill(false);
   game.history = []; game.mistakes = 0; game.hintsUsed = 0; game.elapsed = 0; game.paused = false; game.completed = false; game.recorded = false;
   game.selected = game.board.findIndex(n => !n);
   announce('restarted'); render(); save();
@@ -327,9 +354,9 @@ function begin(gameData, mode = 'relaxed') {
   const assist = game?.assist || false;
   game = {
     version: 1, puzzle: gameData.puzzle, solution: gameData.solution,
-    board: gameData.puzzle.slice(), notes: Array.from({ length: 81 }, () => []),
+    board: gameData.puzzle.slice(), notes: Array.from({ length: 81 }, () => []), tentative: Array(81).fill(false),
     difficulty: gameData.difficulty, id: gameData.id, elapsed: 0, mistakes: 0,
-    selected: gameData.puzzle.findIndex(n => !n), notesMode: false, assist,
+    selected: gameData.puzzle.findIndex(n => !n), notesMode: false, tentativeMode: false, assist,
     mode, hintsUsed: 0, recorded: false, paused: false, completed: false, history: []
   };
   $('difficulty').value = game.difficulty;
@@ -368,7 +395,7 @@ function registerWebMcp() {
     annotations: { readOnlyHint: true, untrustedContentHint: false },
     execute() {
       if (!game) throw new Error('No game is ready');
-      return { board: game.board, givens: game.puzzle, difficulty: game.difficulty, selected: game.selected, mistakes: game.mistakes, elapsed: game.elapsed, completed: game.completed, paused: game.paused, assist: game.assist };
+      return { board: game.board, givens: game.puzzle, tentative: game.tentative, tentativeMode: game.tentativeMode, difficulty: game.difficulty, selected: game.selected, mistakes: game.mistakes, elapsed: game.elapsed, completed: game.completed, paused: game.paused, assist: game.assist };
     }
   });
   register({
@@ -388,7 +415,7 @@ function registerWebMcp() {
       const board = game.board.slice(); board[index] = 0;
       if (game.assist && !(candidateMask(board, index) & (1 << (digit - 1)))) throw new Error('Candidate assist excludes this digit');
       selectCell(index); enterNumber(digit);
-      return { row, column, digit, entered: game.board[index] === digit, mistakes: game.mistakes, completed: game.completed };
+      return { row, column, digit, entered: game.board[index] === digit, tentative: game.tentative[index], mistakes: game.mistakes, completed: game.completed };
     }
   });
 }
@@ -412,7 +439,9 @@ $('language-button').addEventListener('click', () => {
 $('undo-button').addEventListener('click', undo);
 $('erase-button').addEventListener('click', erase);
 $('hint-button').addEventListener('click', hint);
-$('notes-button').addEventListener('click', () => { if (!game || game.paused || game.completed) return; game.notesMode = !game.notesMode; render(); save(); });
+$('notes-button').addEventListener('click', () => { if (!game || game.paused || game.completed) return; game.notesMode = !game.notesMode; if (game.notesMode) game.tentativeMode = false; render(); save(); });
+$('tentative-button').addEventListener('click', toggleTentative);
+$('confirm-button').addEventListener('click', confirmTentative);
 $('assist-switch').addEventListener('change', event => { if (!game) return; game.assist = event.target.checked; render(); save(); });
 $('pause-button').addEventListener('click', togglePause);
 $('resume-button').addEventListener('click', togglePause);
@@ -442,7 +471,7 @@ document.addEventListener('keydown', event => {
   if (!game || game.paused || game.completed || busy || event.target.matches('select,input')) return;
   if (/^[1-9]$/.test(event.key)) { event.preventDefault(); enterNumber(Number(event.key)); }
   else if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); erase(); }
-  else if (event.key.toLowerCase() === 'n') { game.notesMode = !game.notesMode; render(); save(); }
+  else if (event.key.toLowerCase() === 'n') { game.notesMode = !game.notesMode; if (game.notesMode) game.tentativeMode = false; render(); save(); }
   else if (event.key.startsWith('Arrow')) {
     event.preventDefault();
     const current = game.selected ?? 0;

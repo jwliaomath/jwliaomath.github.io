@@ -69,6 +69,8 @@
             <button id="undo-button" class="tool-button" type="button"><span aria-hidden="true">↶</span><span class="tool-label">撤销</span></button>
             <button id="erase-button" class="tool-button" type="button"><span aria-hidden="true">⌫</span><span class="tool-label">擦除</span></button>
             <button id="notes-button" class="tool-button" type="button" aria-pressed="false"><span aria-hidden="true">✎</span><span class="tool-label">笔记</span></button>
+            <button id="tentative-button" class="tool-button" type="button" aria-pressed="false"><span aria-hidden="true">?</span><span class="tool-label">待定</span></button>
+            <button id="confirm-button" class="tool-button" type="button" disabled><span aria-hidden="true">✓</span><span class="tool-label">确认</span></button>
             <button id="hint-button" class="tool-button" type="button"><span aria-hidden="true">✦</span><span class="tool-label">提示</span></button>
           </div>
           <label class="assist-toggle" for="assist-switch">
@@ -91,6 +93,7 @@
     <p>先点击空格，再点击数字。默认宽松模式只在同行、同列或九宫格出现重复数字时标出冲突；不会根据隐藏答案或其他空格的候选数提示错填。严格模式会立即指出错填并计数。打开“候选数字辅助”，数字键会标出当前格可以填的数字。</p>
     <p>电脑上还可以使用方向键移动，按 1–9 填数、Delete 擦除、N 切换笔记、Ctrl+Z 撤销。</p>
     <p>“提示”分三步：先说解题技巧，再标出相关区域，第三次才填入数字。</p>
+    <p>打开“待定”后填入的数字显示为琥珀色，但仍参与规则与冲突检查。选中琥珀色数字后点“确认”可将它转为蓝色；这个操作也可以撤销。“待定”和“笔记”不能同时开启。</p>
     <h3 class="guide-title">解题技巧 · 从易到难</h3>
     <p class="guide-intro">候选数是某格按同行、同列、同宫排除后，仍可能填入的数字。高阶技巧会进一步排除候选数；可以用“笔记”记录它们。</p>
     <div class="technique-guide">

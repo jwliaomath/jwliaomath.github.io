@@ -1,4 +1,4 @@
-const CACHE = 'soduko-i18n-v1';
+const CACHE = 'soduko-tentative-v2';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
   './src/styles.css', './src/main.js', './src/i18n.js', './src/sudoku.js', './src/game-rules.js',
