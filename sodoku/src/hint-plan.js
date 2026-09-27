@@ -1,4 +1,4 @@
-import { BOXES, COLS, PEERS, ROWS } from './sudoku.js';
+import { bit, candidateMask, BOXES, COLS, PEERS, ROWS } from './sudoku.js';
 import { nextLogicalPlacement } from './rater.js';
 
 const quickTips = {
@@ -41,6 +41,19 @@ function unitName(unit) {
   return box >= 0 ? `第${box + 1}宫` : '相关区域';
 }
 
+function englishUnitName(unit) {
+  const row = ROWS.indexOf(unit);
+  if (row >= 0) return `row ${row + 1}`;
+  const col = COLS.indexOf(unit);
+  if (col >= 0) return `column ${col + 1}`;
+  return `box ${BOXES.indexOf(unit) + 1}`;
+}
+
+function cellName(index, lang) {
+  const row = Math.floor(index / 9) + 1, col = index % 9 + 1;
+  return lang === 'en' ? `row ${row}, column ${col}` : `第${row}行第${col}列`;
+}
+
 export function buildHintPlan(board, solution, selected = -1) {
   if (selected === null) selected = -1;
   const wrong = board.findIndex((value, i) => value && value !== solution[i]);
@@ -52,7 +65,14 @@ export function buildHintPlan(board, solution, selected = -1) {
   const logical = nextLogicalPlacement(board, preferred);
   if (logical) {
     const region = logical.unit || PEERS[logical.index].filter(i => board[i]);
-    return { kind: 'logical', ...logical, region, unitLabel: logical.unit ? unitName(logical.unit) : null };
+    let proof = logical.proof;
+    if (proof?.type === 'hiddenSubset' && proof.digits.length === 2 && logical.unit &&
+      proof.cells.every(index => logical.unit.includes(index)) &&
+      proof.digits.every(digit => {
+        const spots = logical.unit.filter(index => !board[index] && candidateMask(board, index) & bit(digit));
+        return spots.length === 2 && proof.cells.every(index => spots.includes(index));
+      })) proof = { ...proof, unit: logical.unit };
+    return { kind: 'logical', ...logical, proof, region, unitLabel: logical.unit ? unitName(logical.unit) : null };
   }
   const index = preferred >= 0 ? preferred : board.findIndex((value, i) => !value && solution[i]);
   if (index < 0) return null;
@@ -66,12 +86,17 @@ export function hintMessage(plan, stage, lang = 'zh') {
       if (plan.kind === 'advanced') return 'The hint solver found no definite move it can explain. See Trial and backtracking in How to play & tips, or press Hint again to highlight an empty cell.';
       const first = plan.preparations[0] || plan.technique;
       const [name, tip] = englishTips[first] || [first, 'Look for a candidate you can eliminate.'];
-      const more = plan.preparations.length ? ` Then look for ${englishTips[plan.technique]?.[0] || plan.technique}.` : '';
+      const more = plan.preparations.length
+        ? ` Then use ${[...plan.preparations.slice(1), plan.technique].map(name => englishTips[name]?.[0] || name).join(', then ')}.` : '';
       return `Try ${name}: ${tip}${more} Press Hint again to see where. Details are in How to play & tips.`;
     }
     if (stage === 2) {
       if (plan.kind === 'correction') return 'The cell to check is highlighted. You can erase it and reason again; press Hint once more to correct it.';
       if (plan.kind === 'advanced') return 'An empty cell is highlighted. Press Hint once more to reveal its number.';
+      if (plan.proof?.type === 'hiddenSubset' && plan.proof.digits.length === 2) {
+        const { digits, cells, unit } = plan.proof;
+        return `In ${englishUnitName(unit)}, ${digits[0]} and ${digits[1]} can only go in ${cells.map(index => cellName(index, 'en')).join(' and ')}. Those two cells cannot hold any other digit. Look for the only place in ${englishUnitName(plan.unit)} for the remaining digit. Press Hint again to reveal it.`;
+      }
       let area = 'the highlighted cell and its filled peers';
       if (plan.unit) {
         const row = ROWS.indexOf(plan.unit), col = COLS.indexOf(plan.unit), box = BOXES.indexOf(plan.unit);
@@ -87,12 +112,17 @@ export function hintMessage(plan, stage, lang = 'zh') {
     if (plan.kind === 'correction') return '有一个已填数字需要检查。再按一次“提示”查看位置。';
     if (plan.kind === 'advanced') return '当前提示器没有找到可解释的确定步骤。可先看“玩法与技巧”中的试探与回退；再按一次“提示”查看一个待填格。';
     const first = plan.preparations[0] || plan.technique;
-    const more = plan.preparations.length ? `之后再找${plan.technique}。` : '';
+    const more = plan.preparations.length
+      ? `之后${[...plan.preparations.slice(1), plan.technique].map(name => `再用「${name}」`).join('，')}。` : '';
     return `试试「${first}」：${quickTips[first]}${more}再按一次“提示”查看位置；详细用法见“玩法与技巧”。`;
   }
   if (stage === 2) {
     if (plan.kind === 'correction') return '已标出需要检查的格子。可以先擦除，再按推理重新填；再按一次“提示”会直接改正。';
     if (plan.kind === 'advanced') return '已标出一个待填格。再按一次“提示”会直接填入答案。';
+    if (plan.proof?.type === 'hiddenSubset' && plan.proof.digits.length === 2) {
+      const { digits, cells, unit } = plan.proof;
+      return `${unitName(unit)}中，${digits[0]}和${digits[1]}只能放在${cells.map(index => cellName(index, 'zh')).join('、')}；这两格不能填其他数字。再看标出的${plan.unitLabel}，找只剩一个落点的数字。再按一次“提示”揭示答案。`;
+    }
     const area = plan.unitLabel ? `观察标出的${plan.unitLabel}` : '观察标出的格子及相关已填数字';
     const detail = plan.unitLabel ? '，找只剩一个落点的数字' : '，排除同行、同列和九宫格已出现的数字';
     return `${area}${detail}。再按一次“提示”揭示答案。`;

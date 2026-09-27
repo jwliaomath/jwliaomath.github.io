@@ -48,7 +48,7 @@ function findLocked(board, masks) {
       const group = units.find(unit => spots.every(i => unit.includes(i)));
       if (!group) continue;
       const removals = group.filter(i => !BOXES[b].includes(i) && !board[i] && masks[i] & bit(value)).map(i => [i, bit(value)]);
-      if (removals.length) return { remove: removals };
+      if (removals.length) return { remove: removals, source: BOXES[b] };
     }
   }
   for (const unit of [...ROWS, ...COLS]) for (let value = 1; value <= 9; value++) {
@@ -57,7 +57,7 @@ function findLocked(board, masks) {
     const box = BOXES.find(cells => spots.every(i => cells.includes(i)));
     if (!box) continue;
     const removals = box.filter(i => !unit.includes(i) && !board[i] && masks[i] & bit(value)).map(i => [i, bit(value)]);
-    if (removals.length) return { remove: removals };
+    if (removals.length) return { remove: removals, source: unit };
   }
   return null;
 }
@@ -71,7 +71,7 @@ function findNakedSubset(board, masks, size) {
       if (popcount(union) !== size) return false;
       const removals = unit.filter(i => !board[i] && !cells.includes(i) && masks[i] & union).map(i => [i, masks[i] & union]);
       if (!removals.length) return false;
-      found = { remove: removals, name: size === 2 ? '显性数对' : '显性三数组' };
+      found = { remove: removals, name: size === 2 ? '显性数对' : '显性三数组', source: unit };
       return true;
     });
     if (found) return found;
@@ -90,7 +90,8 @@ function findHiddenSubset(board, masks, size) {
       if (cells.length !== size) return false;
       const removals = cells.filter(i => masks[i] & ~wanted).map(i => [i, masks[i] & ~wanted]);
       if (!removals.length) return false;
-      found = { remove: removals, name: size === 2 ? '隐性数对' : '隐性三数组' };
+      found = { remove: removals, name: size === 2 ? '隐性数对' : '隐性三数组', source: unit,
+        proof: { type: 'hiddenSubset', digits, cells, unit } };
       return true;
     });
     if (found) return found;
@@ -120,7 +121,8 @@ function findFish(board, masks, size) {
         if (!bases.has(base) && !board[i] && masks[i] & bit(value)) removals.push([i, bit(value)]);
       }
       if (!removals.length) return false;
-      found = { remove: removals, name: size === 2 ? 'X-Wing' : 'Swordfish' };
+      found = { remove: removals, name: size === 2 ? 'X-Wing' : 'Swordfish',
+        source: selected.flatMap(item => byRows ? ROWS[item[0]] : COLS[item[0]]) };
       return true;
     });
     if (found) return found;
@@ -141,7 +143,7 @@ function findXYWing(board, masks) {
       if (sharedPivotA === sharedPivotB || otherA !== otherB || popcount(otherA) !== 1) continue;
       const secondPeers = new Set(PEERS[second]);
       const removals = PEERS[first].filter(i => i !== pivot && i !== second && secondPeers.has(i) && !board[i] && masks[i] & otherA).map(i => [i, otherA]);
-      if (removals.length) return { remove: removals, name: 'XY-Wing' };
+      if (removals.length) return { remove: removals, name: 'XY-Wing', source: [pivot, first, second] };
     }
   }
   return null;
@@ -160,7 +162,7 @@ const DETECTORS = [
 export function nextLogicalPlacement(source, preferredIndex = -1) {
   const board = source.slice();
   const masks = board.map((value, i) => value ? 0 : candidateMask(board, i));
-  const preparations = [];
+  const eliminations = [];
   for (let turn = 0; turn < 1000; turn++) {
     if (board.every(Boolean) || masks.some((mask, i) => !board[i] && !mask)) return null;
     let action = null, technique = 0;
@@ -171,9 +173,25 @@ export function nextLogicalPlacement(source, preferredIndex = -1) {
     if (!action) return null;
     if (action.place) {
       const [index, value] = action.place;
-      return { index, value, technique: action.name || TECHNIQUES[technique - 1][0], level: technique, preparations: [...new Set(preparations)], unit: action.unit || null };
+      const relevant = new Set();
+      for (let step = 0; step < eliminations.length; step++) {
+        const affected = action.unit || [index];
+        if (eliminations[step].remove.some(([cell, removed]) =>
+          affected.includes(cell) && (!action.unit || Boolean(removed & bit(value))))) relevant.add(step);
+      }
+      for (let step = eliminations.length - 1; step >= 0; step--) {
+        if (!relevant.has(step)) continue;
+        const sourceCells = eliminations[step].source;
+        for (let earlier = 0; earlier < step; earlier++) {
+          if (eliminations[earlier].remove.some(([cell]) => sourceCells.includes(cell))) relevant.add(earlier);
+        }
+      }
+      const steps = eliminations.filter((_, step) => relevant.has(step));
+      return { index, value, technique: action.name || TECHNIQUES[technique - 1][0], level: technique,
+        preparations: [...new Set(steps.map(step => step.name))], unit: action.unit || null,
+        proof: steps.length === 1 ? steps[0].proof || null : null };
     }
-    preparations.push(action.name || TECHNIQUES[technique - 1][0]);
+    eliminations.push({ ...action, name: action.name || TECHNIQUES[technique - 1][0] });
     for (const [index, removed] of action.remove) masks[index] &= ~removed;
   }
   return null;
