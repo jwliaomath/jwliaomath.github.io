@@ -2,10 +2,10 @@
 layout: page
 title: projects
 permalink: /projects/
-description: Research software for protein structure refinement.
+description: Research software and selected side projects.
 nav: true
 nav_order: 3
-display_categories: [research]
+display_categories: [research, other]
 horizontal: false
 ---
 
@@ -15,7 +15,7 @@ horizontal: false
   <!-- Display categorized projects -->
   {% for category in page.display_categories %}
   <a id="{{ category }}" href=".#{{ category }}">
-    <h2 class="category">{{ category }}</h2>
+    <h2 class="category">{{ category | capitalize }} Projects</h2>
   </a>
   {% assign categorized_projects = site.projects | where: "category", category %}
   {% assign sorted_projects = categorized_projects | sort: "importance" %}

@@ -160,7 +160,7 @@ function render() {
   const boardForCandidates = game.board.slice();
   if (chosen !== null) boardForCandidates[chosen] = 0;
   const allowed = chosen === null ? 0 : candidateMask(boardForCandidates, chosen);
-  const { conflicting, blocked } = boardIssues(game.board);
+  const { conflicting } = boardIssues(game.board);
   const hintRegion = hintState?.stage === 2 ? new Set(hintState.plan.region) : null;
   const hintTarget = hintState?.stage === 2 ? hintState.plan.index : -1;
   cells.forEach((cell, i) => {
@@ -174,7 +174,6 @@ function render() {
     if (i === chosen) cell.classList.add('selected');
     if (game.mode === 'strict' && value && !game.puzzle[i] && value !== game.solution[i]) cell.classList.add('wrong');
     if (conflicting.has(i)) cell.classList.add('conflict');
-    if (blocked.has(i)) cell.classList.add('dead-end');
     if (hintRegion?.has(i)) cell.classList.add('hint-region');
     if (i === hintTarget) cell.classList.add('hint-target');
     cell.replaceChildren();
@@ -190,7 +189,7 @@ function render() {
       cell.append(notes);
     }
     const desc = value ? `${game.puzzle[i] ? '题目数字' : '已填'} ${value}` : game.notes[i].length ? `笔记 ${game.notes[i].join('、')}` : '空格';
-    cell.setAttribute('aria-label', `第${Math.floor(i / 9) + 1}行第${i % 9 + 1}列，${desc}${conflicting.has(i) ? '，数字冲突' : blocked.has(i) ? '，没有候选数字' : ''}${i === hintTarget ? '，提示位置' : hintRegion?.has(i) ? '，提示相关区域' : ''}`);
+    cell.setAttribute('aria-label', `第${Math.floor(i / 9) + 1}行第${i % 9 + 1}列，${desc}${conflicting.has(i) ? '，数字冲突' : ''}${i === hintTarget ? '，提示位置' : hintRegion?.has(i) ? '，提示相关区域' : ''}`);
     cell.setAttribute('aria-selected', String(i === chosen));
   });
 
@@ -251,8 +250,7 @@ function enterNumber(value) {
     if (value === game.solution[index]) {
       for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
     }
-    if (feedback.conflicts.length) announce('有重复数字，冲突位置已标红。请检查同行、同列和九宫格。');
-    else if (feedback.blocked.length) announce('有空格已没有可填数字，位置已标红。请检查已填内容。');
+    if (feedback.conflicts.length) announce('当前棋盘有重复数字，可能有步骤填错了；请检查标红位置。');
     else if (feedback.countMistake) announce('这个数字不正确，错误次数加一。');
     else announce('已填入数字。');
     if (game.board.every((n, i) => n === game.solution[i])) {
