@@ -16,6 +16,21 @@ const quickTips = {
   'XY-Wing': '三个双候选格构成中心与两翼，可从同时看见两翼的格子排除共同数字。',
   'Swordfish / XY-Wing': '寻找三行三列的鱼形，或三个双候选格组成的翼形来排除候选。'
 };
+const englishTips = {
+  '单格唯一候选': ['Naked single', 'Eliminate digits already present in the row, column, and box; find a cell with one candidate left.'],
+  '行列宫唯一位置': ['Hidden single', 'Find the only place for a digit in one row, column, or box.'],
+  '区块排除': ['Locked candidates', 'If a digit in one box is confined to a row or column, remove it elsewhere on that line.'],
+  '数对': ['Pair', 'Two cells share the same two digits; remove those digits from other cells in the area.'],
+  '三数组': ['Triple', 'Three cells share three digits; remove those digits from other cells in the area.'],
+  '显性数对': ['Naked pair', 'Two cells in one area have the same two candidates; remove them elsewhere in that area.'],
+  '隐性数对': ['Hidden pair', 'Two digits occur only in the same two cells; remove other candidates from those cells.'],
+  '显性三数组': ['Naked triple', 'Three cells together have only three candidates; remove them elsewhere in the area.'],
+  '隐性三数组': ['Hidden triple', 'Three digits occur only in the same three cells; remove other candidates from those cells.'],
+  'X-Wing': ['X-Wing', 'One digit appears in the same two columns of two rows; remove it elsewhere in those columns.'],
+  'Swordfish': ['Swordfish', 'Candidates for one digit in three rows cover only three columns; remove it from other rows in those columns.'],
+  'XY-Wing': ['XY-Wing', 'Three cells with two candidates form a pivot and wings; remove their shared digit from cells seeing both wings.'],
+  'Swordfish / XY-Wing': ['Swordfish / XY-Wing', 'Look for a three-row fish or a pivot with two wings to remove candidates.']
+};
 
 function unitName(unit) {
   const row = ROWS.indexOf(unit);
@@ -44,7 +59,30 @@ export function buildHintPlan(board, solution, selected = -1) {
   return { kind: 'advanced', index, value: solution[index], region: PEERS[index].filter(i => board[i]) };
 }
 
-export function hintMessage(plan, stage) {
+export function hintMessage(plan, stage, lang = 'zh') {
+  if (lang === 'en') {
+    if (stage === 1) {
+      if (plan.kind === 'correction') return 'One entered number needs checking. Press Hint again to see where.';
+      if (plan.kind === 'advanced') return 'The hint solver found no definite move it can explain. See Trial and backtracking in How to play & tips, or press Hint again to highlight an empty cell.';
+      const first = plan.preparations[0] || plan.technique;
+      const [name, tip] = englishTips[first] || [first, 'Look for a candidate you can eliminate.'];
+      const more = plan.preparations.length ? ` Then look for ${englishTips[plan.technique]?.[0] || plan.technique}.` : '';
+      return `Try ${name}: ${tip}${more} Press Hint again to see where. Details are in How to play & tips.`;
+    }
+    if (stage === 2) {
+      if (plan.kind === 'correction') return 'The cell to check is highlighted. You can erase it and reason again; press Hint once more to correct it.';
+      if (plan.kind === 'advanced') return 'An empty cell is highlighted. Press Hint once more to reveal its number.';
+      let area = 'the highlighted cell and its filled peers';
+      if (plan.unit) {
+        const row = ROWS.indexOf(plan.unit), col = COLS.indexOf(plan.unit), box = BOXES.indexOf(plan.unit);
+        area = row >= 0 ? `row ${row + 1}` : col >= 0 ? `column ${col + 1}` : `box ${box + 1}`;
+      }
+      return plan.unit
+        ? `Look at ${area} and find the only place for a digit. Press Hint again to reveal the answer.`
+        : `Look at ${area}; exclude digits already in the row, column, or box. Press Hint again to reveal the answer.`;
+    }
+    return `Hint: row ${Math.floor(plan.index / 9) + 1}, column ${plan.index % 9 + 1} is ${plan.value}.`;
+  }
   if (stage === 1) {
     if (plan.kind === 'correction') return '有一个已填数字需要检查。再按一次“提示”查看位置。';
     if (plan.kind === 'advanced') return '当前提示器没有找到可解释的确定步骤。可先看“玩法与技巧”中的试探与回退；再按一次“提示”查看一个待填格。';

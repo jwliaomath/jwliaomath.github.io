@@ -1,8 +1,8 @@
 const tiers = new Set(['easy', 'medium', 'hard', 'expert', 'master']);
 const modes = new Set(['relaxed', 'strict']);
 
-export function cleanNickname(value) {
-  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 16) || '玩家';
+export function cleanNickname(value, fallback = '玩家') {
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 16) || fallback;
 }
 
 export function addRecord(records, result) {

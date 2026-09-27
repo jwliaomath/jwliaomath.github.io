@@ -3,9 +3,9 @@ import { nextPuzzle, warmAll } from './puzzle-service.js';
 import { buildHintPlan, hintMessage } from './hint-plan.js';
 import { boardIssues, entryFeedback, MODES } from './game-rules.js';
 import { addRecord, cleanNickname, topRecords } from './records.js';
+import { applyStaticLanguage, difficultyLabel, language, modeLabel, setLanguage, t } from './i18n.js';
 
 const $ = id => document.getElementById(id);
-const labels = { easy: '简单', medium: '中等', hard: '困难', expert: '专家', master: '大师' };
 const saveKey = 'soduko-game-v1';
 const recentKey = 'soduko-recent-v1';
 const recordsKey = 'soduko-records-v1';
@@ -15,6 +15,8 @@ let game = null;
 let busy = false;
 let hintState = null;
 let confirmResolver = null;
+let confirmKeys = null;
+let lastStatus = { key: 'selectEmpty', params: {} };
 
 for (let i = 0; i < 81; i++) {
   const cell = document.createElement('button');
@@ -30,13 +32,16 @@ for (let value = 1; value <= 9; value++) {
   button.type = 'button';
   button.className = 'digit-button';
   button.textContent = value;
-  button.setAttribute('aria-label', `填入数字 ${value}`);
+  button.setAttribute('aria-label', t('fillDigit', { value }));
   button.addEventListener('click', () => enterNumber(value));
   $('number-pad').append(button);
 }
 const digitButtons = [...$('number-pad').children];
 
-function announce(message) { $('status').textContent = message; }
+function announce(key, params = {}) {
+  lastStatus = { key, params };
+  $('status').textContent = key === 'hint' ? hintMessage(params.plan, params.stage, language()) : t(key, params);
+}
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor(seconds / 60) % 60;
@@ -74,16 +79,18 @@ function hasProgress() {
   return game && (game.board.some((n, i) => !game.puzzle[i] && n) || game.notes.some(list => list.length));
 }
 
-function askConfirm(message, acceptLabel) {
+function askConfirm(messageKey, acceptKey) {
   if (confirmResolver) return Promise.resolve(false);
-  $('confirm-message').textContent = message;
-  $('confirm-accept').textContent = acceptLabel;
+  confirmKeys = { messageKey, acceptKey };
+  $('confirm-message').textContent = t(messageKey);
+  $('confirm-accept').textContent = t(acceptKey);
   $('confirm-dialog').showModal();
   return new Promise(resolve => { confirmResolver = resolve; });
 }
 function settleConfirm(accepted) {
   const resolve = confirmResolver;
   confirmResolver = null;
+  confirmKeys = null;
   if ($('confirm-dialog').open) $('confirm-dialog').close();
   resolve?.(accepted);
 }
@@ -97,13 +104,13 @@ function renderRecords() {
   list.replaceChildren();
   const records = topRecords(loadRecords(), $('records-difficulty').value, $('records-mode').value);
   if (!records.length) {
-    const item = document.createElement('li'); item.textContent = '还没有成绩，完成一局就能留下记录。'; list.append(item); return;
+    const item = document.createElement('li'); item.textContent = t('noRecords'); list.append(item); return;
   }
   for (const record of records) {
     const item = document.createElement('li');
     const name = document.createElement('strong'); name.textContent = record.nickname;
     const result = document.createElement('span');
-    result.textContent = `${formatTime(record.elapsed)}${record.mode === 'strict' ? ` · 错误 ${record.mistakes}` : ''}${record.hintsUsed ? ` · 提示 ${record.hintsUsed}` : ''}`;
+    result.textContent = `${formatTime(record.elapsed)}${record.mode === 'strict' ? ` · ${t('mistakes', { count: record.mistakes })}` : ''}${record.hintsUsed ? ` · ${t('hints', { count: record.hintsUsed })}` : ''}`;
     item.append(name, result); list.append(item);
   }
 }
@@ -125,29 +132,32 @@ function celebrate() {
     container.append(spark);
   }
 }
+function renderWinSummary() {
+  $('win-summary').textContent = t('winSummary', { difficulty: difficultyLabel(game.difficulty), mode: modeLabel(game.mode), time: formatTime(game.elapsed), mistakes: game.mode === 'strict' ? game.mistakes : null });
+}
 function showWin() {
-  $('win-summary').textContent = `${labels[game.difficulty]} · ${MODES[game.mode]} · 用时 ${formatTime(game.elapsed)}${game.mode === 'strict' ? ` · 错误 ${game.mistakes}` : ''}`;
+  renderWinSummary();
   try { $('nickname').value = localStorage.getItem(nicknameKey) || ''; } catch { $('nickname').value = ''; }
   celebrate();
   if (!$('win-dialog').open) $('win-dialog').showModal();
 }
 function finish() {
   game.completed = true;
-  announce(`恭喜完成${labels[game.difficulty]}数独！用时 ${formatTime(game.elapsed)}。`);
+  announce('finished', { difficulty: difficultyLabel(game.difficulty), time: formatTime(game.elapsed) });
   render(); save(); showWin();
 }
 
 function render() {
   if (!game) return;
-  $('level-title').textContent = labels[game.difficulty];
-  $('mode-badge').textContent = MODES[game.mode];
+  $('level-title').textContent = difficultyLabel(game.difficulty);
+  $('mode-badge').textContent = modeLabel(game.mode);
   $('mistake-stat').hidden = game.mode !== 'strict';
   $('mistakes').textContent = game.mistakes;
   $('timer').textContent = formatTime(game.elapsed);
   $('notes-button').classList.toggle('active', game.notesMode);
   $('notes-button').setAttribute('aria-pressed', String(game.notesMode));
   $('assist-switch').checked = game.assist;
-  $('pause-button').textContent = game.paused ? '继续' : '暂停';
+  $('pause-button').textContent = t(game.paused ? 'resume' : 'pause');
   $('undo-button').disabled = !game.history.length || game.paused || game.completed;
   $('erase-button').disabled = !editable();
   $('notes-button').disabled = game.paused || game.completed;
@@ -188,8 +198,8 @@ function render() {
       }
       cell.append(notes);
     }
-    const desc = value ? `${game.puzzle[i] ? '题目数字' : '已填'} ${value}` : game.notes[i].length ? `笔记 ${game.notes[i].join('、')}` : '空格';
-    cell.setAttribute('aria-label', `第${Math.floor(i / 9) + 1}行第${i % 9 + 1}列，${desc}${conflicting.has(i) ? '，数字冲突' : ''}${i === hintTarget ? '，提示位置' : hintRegion?.has(i) ? '，提示相关区域' : ''}`);
+    const desc = value ? t(game.puzzle[i] ? 'fixedDigit' : 'enteredDigit', { value }) : game.notes[i].length ? t('notes', { values: game.notes[i].join(language() === 'en' ? ', ' : '、') }) : t('emptyCell');
+    cell.setAttribute('aria-label', t('cellDescription', { row: Math.floor(i / 9) + 1, col: i % 9 + 1, desc, conflict: conflicting.has(i), target: i === hintTarget, region: hintRegion?.has(i) }));
     cell.setAttribute('aria-selected', String(i === chosen));
   });
 
@@ -199,26 +209,27 @@ function render() {
     const excluded = game.assist && canEnter && !possible;
     button.classList.toggle('excluded', excluded);
     button.disabled = !canEnter || excluded;
-    button.title = excluded ? '同行、同列或九宫格已有此数字' : '';
+    button.title = excluded ? t('digitExcluded') : '';
+    button.setAttribute('aria-label', t('fillDigit', { value: i + 1 }));
   });
   if (chosen === null) {
-    $('candidate-label').textContent = '选择一个空格';
-    $('candidate-summary').textContent = '也可以使用键盘上的 1–9。';
+    $('candidate-label').textContent = t('selectEmpty');
+    $('candidate-summary').textContent = t('keyboard');
   } else if (game.puzzle[chosen]) {
-    $('candidate-label').textContent = '题目数字';
-    $('candidate-summary').textContent = '这个数字不能修改。';
+    $('candidate-label').textContent = t('fixedCell');
+    $('candidate-summary').textContent = t('fixedCannotEdit');
   } else if (game.assist) {
     const candidates = values(allowed);
-    $('candidate-label').textContent = '已开启辅助';
-    $('candidate-summary').textContent = candidates.length ? `当前可填：${candidates.join('、')}` : '当前格没有可填数字，请检查已填内容。';
+    $('candidate-label').textContent = t('assistOn');
+    $('candidate-summary').textContent = candidates.length ? t('candidates', { values: candidates.join(language() === 'en' ? ', ' : '、') }) : t('noCandidates');
   } else {
-    $('candidate-label').textContent = game.notesMode ? '笔记模式' : '选择数字';
-    $('candidate-summary').textContent = game.notesMode ? '点击数字，可添加或删除笔记。' : '也可以使用键盘上的 1–9。';
+    $('candidate-label').textContent = t(game.notesMode ? 'notesMode' : 'selectDigit');
+    $('candidate-summary').textContent = t(game.notesMode ? 'notesInstructions' : 'keyboard');
   }
   $('board-cover').hidden = !game.paused && !game.completed && !busy;
-  $('cover-title').textContent = busy ? '正在准备题目…' : game.completed ? '完成！' : '已暂停';
+  $('cover-title').textContent = t(busy ? 'preparing' : game.completed ? 'completed' : 'paused');
   $('resume-button').hidden = busy || game.completed;
-  $('resume-button').textContent = '继续游戏';
+  $('resume-button').textContent = t('resumeGame');
 }
 
 function selectCell(index) {
@@ -238,7 +249,7 @@ function enterNumber(value) {
     hintState = null;
     const notes = game.notes[index];
     game.notes[index] = notes.includes(value) ? notes.filter(n => n !== value) : [...notes, value].sort();
-    announce(`笔记 ${value} 已${notes.includes(value) ? '删除' : '添加'}。`);
+    announce('noteChanged', { value, added: !notes.includes(value) });
   } else {
     if (game.board[index] === value) return;
     snapshot();
@@ -250,9 +261,9 @@ function enterNumber(value) {
     if (value === game.solution[index]) {
       for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
     }
-    if (feedback.conflicts.length) announce('当前棋盘有重复数字，可能有步骤填错了；请检查标红位置。');
-    else if (feedback.countMistake) announce('这个数字不正确，错误次数加一。');
-    else announce('已填入数字。');
+    if (feedback.conflicts.length) announce('conflicts');
+    else if (feedback.countMistake) announce('wrongDigit');
+    else announce('digitEntered');
     if (game.board.every((n, i) => n === game.solution[i])) {
       finish(); return;
     }
@@ -264,12 +275,12 @@ function erase() {
   const index = game.selected;
   if (!game.board[index] && !game.notes[index].length) return;
   snapshot(); hintState = null; game.board[index] = 0; game.notes[index] = [];
-  announce('已擦除。'); render(); save();
+  announce('erased'); render(); save();
 }
 function undo() {
   if (!game || !game.history.length || game.paused || game.completed) return;
   hintState = null; Object.assign(game, game.history.pop());
-  announce('已撤销上一步。'); render(); save();
+  announce('undone'); render(); save();
 }
 function hint() {
   if (!game || game.paused || game.completed) return;
@@ -277,12 +288,12 @@ function hint() {
     const plan = buildHintPlan(game.board, game.solution, game.selected);
     if (!plan) return;
     hintState = { plan, stage: 1 };
-    announce(hintMessage(plan, 1)); render(); return;
+    announce('hint', { plan, stage: 1 }); render(); return;
   }
   if (hintState.stage === 1) {
     hintState.stage = 2;
     game.selected = null;
-    announce(hintMessage(hintState.plan, 2)); render(); return;
+    announce('hint', { plan: hintState.plan, stage: 2 }); render(); return;
   }
   const plan = hintState.plan;
   const index = plan.index;
@@ -293,23 +304,23 @@ function hint() {
   game.board[index] = value; game.notes[index] = []; game.selected = index;
   for (const peer of PEERS[index]) game.notes[peer] = game.notes[peer].filter(n => n !== value);
   if (game.board.every((n, i) => n === game.solution[i])) { finish(); return; }
-  announce(hintMessage(plan, 3));
+  announce('hint', { plan, stage: 3 });
   render(); save();
 }
 function togglePause() {
   if (!game || game.completed || busy) return;
   hintState = null;
   game.paused = !game.paused;
-  announce(game.paused ? '游戏已暂停。' : '继续游戏。'); render(); save();
+  announce(game.paused ? 'gamePaused' : 'gameResumed'); render(); save();
 }
 async function restart() {
   if (!game || busy) return;
-  if (hasProgress() && !await askConfirm('重新开始会清除本局已填的数字和笔记，确定吗？', '重新开始')) return;
+  if (hasProgress() && !await askConfirm('restartConfirm', 'restart')) return;
   hintState = null;
   game.board = game.puzzle.slice(); game.notes = Array.from({ length: 81 }, () => []);
   game.history = []; game.mistakes = 0; game.hintsUsed = 0; game.elapsed = 0; game.paused = false; game.completed = false; game.recorded = false;
   game.selected = game.board.findIndex(n => !n);
-  announce('已重新开始本局。'); render(); save();
+  announce('restarted'); render(); save();
 }
 function begin(gameData, mode = 'relaxed') {
   hintState = null;
@@ -324,20 +335,20 @@ function begin(gameData, mode = 'relaxed') {
   $('difficulty').value = game.difficulty;
   $('error-mode').value = game.mode;
   busy = false; remember(game.id);
-  announce(`新的${labels[game.difficulty]}数独已准备好。`); render(); save();
+  announce('newReady', { difficulty: difficultyLabel(game.difficulty) }); render(); save();
 }
 async function newGame(difficulty = $('difficulty').value) {
   if (busy) return;
   const mode = $('error-mode').value;
-  if (game && !game.completed && hasProgress() && !await askConfirm('开始新游戏会覆盖当前进度，确定吗？', '开始新游戏')) {
+  if (game && !game.completed && hasProgress() && !await askConfirm('newConfirm', 'newGame')) {
     $('difficulty').value = game.difficulty; $('error-mode').value = game.mode; return;
   }
   busy = true;
   $('new-button').disabled = true;
-  announce('正在准备新题目…');
+  announce('preparingNew');
   if (game) render();
   try { begin(await nextPuzzle(difficulty, recentIds()), mode); }
-  catch (error) { busy = false; announce(error.message || '出题失败，请再试一次。'); if (game) render(); }
+  catch (error) { console.error(error); busy = false; announce('puzzleFailed'); if (game) render(); }
   finally { $('new-button').disabled = false; }
 }
 
@@ -383,6 +394,21 @@ function registerWebMcp() {
 }
 
 $('new-button').addEventListener('click', () => newGame());
+$('language-button').addEventListener('click', () => {
+  setLanguage(language() === 'zh' ? 'en' : 'zh');
+  applyStaticLanguage();
+  if (game) {
+    render();
+    if (lastStatus.params.difficulty) lastStatus.params.difficulty = difficultyLabel(game.difficulty);
+    announce(lastStatus.key, lastStatus.params);
+    if ($('win-dialog').open) renderWinSummary();
+  }
+  if ($('records-dialog').open) renderRecords();
+  if (confirmKeys) {
+    $('confirm-message').textContent = t(confirmKeys.messageKey);
+    $('confirm-accept').textContent = t(confirmKeys.acceptKey);
+  }
+});
 $('undo-button').addEventListener('click', undo);
 $('erase-button').addEventListener('click', erase);
 $('hint-button').addEventListener('click', hint);
@@ -400,10 +426,10 @@ for (const id of ['records-difficulty', 'records-mode']) $(id).addEventListener(
 $('record-form').addEventListener('submit', event => {
   event.preventDefault();
   if (!game?.completed || game.recorded) return;
-  const nickname = cleanNickname($('nickname').value);
+  const nickname = cleanNickname($('nickname').value, t('player'));
   const records = addRecord(loadRecords(), { nickname, difficulty: game.difficulty, mode: game.mode, elapsed: game.elapsed, mistakes: game.mistakes, hintsUsed: game.hintsUsed, puzzleId: game.id });
   try { localStorage.setItem(recordsKey, JSON.stringify(records)); localStorage.setItem(nicknameKey, nickname); }
-  catch { announce('本机存储不可用，成绩未能保存。'); return; }
+  catch { announce('storageFailed'); return; }
   game.recorded = true; save(); $('win-dialog').close(); showRecords();
 });
 $('skip-record').addEventListener('click', () => { game.recorded = true; save(); $('win-dialog').close(); });
@@ -432,10 +458,11 @@ setInterval(() => {
   save();
 }, 1000);
 
+applyStaticLanguage();
 game = restore();
 if (game) {
   $('difficulty').value = game.difficulty; $('error-mode').value = game.mode;
-  announce('已恢复上次的游戏。'); render();
+  announce('restored'); render();
   if (game.completed && !game.recorded) showWin();
 }
 else newGame('easy');

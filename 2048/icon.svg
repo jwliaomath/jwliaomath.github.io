@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="2048 游戏图标">
+  <rect width="512" height="512" rx="112" fill="#127d79"/>
+  <rect x="78" y="78" width="166" height="166" rx="28" fill="#f8f0dc"/>
+  <rect x="268" y="78" width="166" height="166" rx="28" fill="#f3e4bc"/>
+  <rect x="78" y="268" width="166" height="166" rx="28" fill="#f5c48b"/>
+  <rect x="268" y="268" width="166" height="166" rx="28" fill="#f5f2e9"/>
+  <g fill="#315258" font-family="Arial,sans-serif" font-size="88" font-weight="900" text-anchor="middle" dominant-baseline="central">
+    <text x="161" y="161">2</text><text x="351" y="161">0</text><text x="161" y="351">4</text><text x="351" y="351">8</text>
+  </g>
+</svg>
