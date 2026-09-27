@@ -3,6 +3,7 @@ import { applyStaticLanguage, language, setLanguage, t } from "./i18n.js";
 
 const STORAGE_KEY = "junwen-2048-v1";
 const MODES = ["assist", "classic"];
+const TOOL_NAMES = ["undo", "swap", "delete"];
 
 const $ = (selector) => document.querySelector(selector);
 const boardElement = $("#board");
@@ -316,7 +317,7 @@ function render() {
   $("#board-caption").textContent = state.mode === "assist"
     ? t("assistCaption")
     : t("classicCaption");
-  for (const name of Object.keys(TOOL_NAMES)) {
+  for (const name of TOOL_NAMES) {
     $("#" + name + "-count").textContent = "×" + run.tools[name];
     const button = $("#" + name + "-button");
     button.disabled = run.tools[name] === 0 || (name === "undo" && run.history.length === 0);
@@ -393,7 +394,7 @@ for (const mode of MODES) {
     render();
   });
 }
-for (const name of Object.keys(TOOL_NAMES)) {
+for (const name of TOOL_NAMES) {
   $("#" + name + "-button").addEventListener("click", () => chooseTool(name));
 }
 
