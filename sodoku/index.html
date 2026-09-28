@@ -40,6 +40,10 @@
             <button id="resume-button" class="primary-button" type="button">继续游戏</button>
           </div>
         </div>
+        <div class="auto-notes desktop-auto-notes">
+          <small>按当前棋盘填写全部空格的候选笔记，可撤销</small>
+          <button id="all-notes-desktop" class="auto-notes-button" type="button">一键填写候选笔记</button>
+        </div>
         <div id="status" class="status" role="status" aria-live="polite">点击空格，再选择数字。</div>
       </section>
 
@@ -79,6 +83,10 @@
           </label>
         </div>
 
+        <div class="auto-notes mobile-auto-notes">
+          <button id="all-notes-mobile" class="auto-notes-button" type="button">一键填写候选笔记</button>
+        </div>
+
         <div class="secondary-actions">
           <button id="pause-button" class="text-button" type="button">暂停</button>
           <button id="restart-button" class="text-button" type="button">重新开始</button>
@@ -90,7 +98,7 @@
   <dialog id="rules-dialog" class="dialog">
     <div class="dialog-head"><h2>玩法与技巧</h2><button id="close-rules" class="close-button" type="button" aria-label="关闭">×</button></div>
     <p>在每一行、每一列和每个 3×3 九宫格中，填入 1 到 9，且数字不能重复。</p>
-    <p>先点击空格，再点击数字。默认宽松模式只在同行、同列或九宫格出现重复数字时标出冲突；不会根据隐藏答案或其他空格的候选数提示错填。严格模式会立即指出错填并计数。打开“候选数字辅助”，数字键会标出当前格可以填的数字。</p>
+    <p>先点击空格，再点击数字。默认宽松模式只在同行、同列或九宫格出现重复数字时标出冲突；不会根据隐藏答案或其他空格的候选数提示错填。严格模式会立即指出错填并计数。打开“候选数字辅助”，数字键会标出当前格可以填的数字。“一键填写候选笔记”会按当前棋盘重算所有空格的笔记，可撤销。</p>
     <p>电脑上还可以使用方向键移动，按 1–9 填数、Delete 擦除、N 切换笔记、Ctrl+Z 撤销。</p>
     <p>“提示”分三步：先说解题技巧，再标出相关区域，第三次才填入数字。</p>
     <p>打开“待定”后填入的数字显示为琥珀色，但仍参与规则与冲突检查。选中琥珀色数字后点“确认”可将它转为蓝色；这个操作也可以撤销。“待定”和“笔记”不能同时开启。</p>
