@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Sudoku game preview</title>
+  <desc id="desc">An English Sudoku preview with a highlighted grid and number pad.</desc>
+  <rect width="1200" height="675" fill="#eef4fd"/>
+  <rect x="72" y="90" width="525" height="525" rx="5" fill="#d8e5f7"/>
+  <rect x="64" y="82" width="525" height="525" fill="#ffffff"/>
+  <rect x="122.33" y="82" width="58.33" height="525" fill="#edf4ff"/>
+  <rect x="122.33" y="82" width="58.33" height="58.33" fill="#bcd5ff"/>
+  <path d="M122.33 82v525 M64 140.33h525" stroke="#c9d7ea" stroke-width="1"/>
+  <path d="M180.67 82v525 M64 198.67h525" stroke="#c9d7ea" stroke-width="1"/>
+  <path d="M239.00 82v525 M64 257.00h525" stroke="#203b66" stroke-width="3"/>
+  <path d="M297.33 82v525 M64 315.33h525" stroke="#c9d7ea" stroke-width="1"/>
+  <path d="M355.67 82v525 M64 373.67h525" stroke="#c9d7ea" stroke-width="1"/>
+  <path d="M414.00 82v525 M64 432.00h525" stroke="#203b66" stroke-width="3"/>
+  <path d="M472.33 82v525 M64 490.33h525" stroke="#c9d7ea" stroke-width="1"/>
+  <path d="M530.67 82v525 M64 548.67h525" stroke="#c9d7ea" stroke-width="1"/>
+  <rect x="64" y="82" width="525" height="525" fill="none" stroke="#203b66" stroke-width="4"/>
+  <rect x="123.33" y="84" width="56.33" height="55.33" fill="none" stroke="#407be8" stroke-width="2"/>
+  <text x="93.17" y="112.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">8</text>
+  <text x="151.50" y="112.17" text-anchor="middle" dominant-baseline="central" fill="#2466cf" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">1</text>
+  <text x="209.83" y="112.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <text x="268.17" y="112.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">4</text>
+  <text x="443.17" y="112.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">2</text>
+  <text x="93.17" y="170.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="209.83" y="170.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="443.17" y="170.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">9</text>
+  <text x="501.50" y="170.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">8</text>
+  <text x="559.83" y="170.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <text x="93.17" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">9</text>
+  <text x="268.17" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="326.50" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <text x="443.17" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="501.50" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">4</text>
+  <text x="559.83" y="228.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">1</text>
+  <text x="93.17" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">2</text>
+  <text x="151.50" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">8</text>
+  <text x="268.17" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="326.50" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="443.17" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">4</text>
+  <text x="501.50" y="287.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">6</text>
+  <text x="93.17" y="345.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">4</text>
+  <text x="209.83" y="345.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">6</text>
+  <text x="326.50" y="345.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">1</text>
+  <text x="501.50" y="345.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <text x="559.83" y="345.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="209.83" y="403.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">9</text>
+  <text x="326.50" y="462.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">8</text>
+  <text x="384.83" y="462.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">1</text>
+  <text x="501.50" y="462.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="559.83" y="462.17" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">2</text>
+  <text x="93.17" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="151.50" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <text x="209.83" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="268.17" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">9</text>
+  <text x="326.50" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">2</text>
+  <text x="384.83" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">4</text>
+  <text x="443.17" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">6</text>
+  <text x="501.50" y="520.50" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">1</text>
+  <text x="326.50" y="578.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">3</text>
+  <text x="384.83" y="578.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">7</text>
+  <text x="443.17" y="578.83" text-anchor="middle" dominant-baseline="central" fill="#192f4c" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="700">5</text>
+  <rect x="648" y="90" width="500" height="525" rx="24" fill="#d8e5f7"/>
+  <rect x="640" y="82" width="500" height="525" rx="24" fill="#ffffff"/>
+  <rect x="678" y="118" width="70" height="70" rx="15" fill="#2663df"/>
+  <path d="M700 128v50 M725 128v50 M688 141h50 M688 164h50" stroke="#ffffff" stroke-width="2.5"/>
+  <text x="768" y="161" fill="#172d49" font-family="Arial,Segoe UI,sans-serif" font-size="47" font-weight="800">Sudoku</text>
+  <text x="770" y="198" fill="#6883a7" font-family="Arial,Segoe UI,sans-serif" font-size="25">Classic game</text>
+  <rect x="678" y="238" width="423" height="49" rx="13" fill="#e9f1ff"/>
+  <text x="699" y="269" fill="#245cc0" font-family="Arial,Segoe UI,sans-serif" font-size="20" font-weight="750">OFFLINE PLAY  ·  FIVE LEVELS</text>
+  <text x="680" y="330" fill="#172d49" font-family="Arial,Segoe UI,sans-serif" font-size="23" font-weight="800">ENTER A NUMBER</text>
+  <rect x="680" y="348" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="744" y="382" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">1</text>
+  <rect x="820" y="348" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="884" y="382" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">2</text>
+  <rect x="960" y="348" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="1024" y="382" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">3</text>
+  <rect x="680" y="425" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="744" y="459" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">4</text>
+  <rect x="820" y="425" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="884" y="459" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">5</text>
+  <rect x="960" y="425" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="1024" y="459" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">6</text>
+  <rect x="680" y="502" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="744" y="536" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">7</text>
+  <rect x="820" y="502" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="884" y="536" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">8</text>
+  <rect x="960" y="502" width="128" height="64" rx="9" fill="#f5f9ff" stroke="#d0dff3" stroke-width="2"/>
+  <text x="1024" y="536" text-anchor="middle" dominant-baseline="central" fill="#2663df" font-family="Arial,Segoe UI,sans-serif" font-size="38" font-weight="750">9</text>
+  <text x="64" y="653" fill="#6d84a3" font-family="Arial,Segoe UI,sans-serif" font-size="19">Candidate notes  ·  Layered hints  ·  Local records</text>
+</svg>

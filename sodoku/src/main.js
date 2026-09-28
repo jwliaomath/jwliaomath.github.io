@@ -1,7 +1,7 @@
 import { candidateMask, PEERS, values } from './sudoku.js';
 import { nextPuzzle, warmAll } from './puzzle-service.js';
 import { buildHintPlan, hintMessage } from './hint-plan.js';
-import { boardIssues, clearPeerNotes, entryFeedback, MODES } from './game-rules.js';
+import { allCandidateNotes, boardIssues, clearPeerNotes, entryFeedback, MODES } from './game-rules.js';
 import { addRecord, cleanNickname, topRecords } from './records.js';
 import { applyStaticLanguage, difficultyLabel, language, modeLabel, setLanguage, t } from './i18n.js';
 
@@ -167,6 +167,7 @@ function render() {
   $('assist-switch').checked = game.assist;
   $('pause-button').textContent = t(game.paused ? 'resume' : 'pause');
   $('undo-button').disabled = !game.history.length || game.paused || game.completed;
+  for (const id of ['all-notes-desktop', 'all-notes-mobile']) $(id).disabled = game.paused || game.completed || busy;
   $('erase-button').disabled = !editable();
   $('notes-button').disabled = game.paused || game.completed;
   $('tentative-button').disabled = game.paused || game.completed;
@@ -294,6 +295,16 @@ function undo() {
   if (!game || !game.history.length || game.paused || game.completed) return;
   hintState = null; Object.assign(game, game.history.pop());
   announce('undone'); render(); save();
+}
+function fillAllCandidateNotes() {
+  if (!game || game.paused || game.completed || busy) return;
+  const notes = allCandidateNotes(game.board);
+  const changed = notes.some((list, index) => list.length !== game.notes[index].length || list.some((digit, i) => digit !== game.notes[index][i]));
+  if (!changed) { announce('allNotesCurrent'); render(); return; }
+  snapshot(); hintState = null;
+  game.notes = notes;
+  announce('allNotesFilled', { count: game.board.filter(value => !value).length });
+  render(); save();
 }
 function toggleTentative() {
   if (!game || game.paused || game.completed) return;
@@ -435,6 +446,7 @@ $('language-button').addEventListener('click', () => {
   }
 });
 $('undo-button').addEventListener('click', undo);
+for (const id of ['all-notes-desktop', 'all-notes-mobile']) $(id).addEventListener('click', fillAllCandidateNotes);
 $('erase-button').addEventListener('click', erase);
 $('hint-button').addEventListener('click', hint);
 $('notes-button').addEventListener('click', () => { if (!game || game.paused || game.completed) return; game.notesMode = !game.notesMode; if (game.notesMode) game.tentativeMode = false; render(); save(); });

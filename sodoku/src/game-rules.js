@@ -1,4 +1,4 @@
-import { conflicts, PEERS } from './sudoku.js';
+import { candidateMask, conflicts, PEERS, values } from './sudoku.js';
 
 export const MODES = { relaxed: '宽松模式', strict: '即时判错' };
 
@@ -29,4 +29,8 @@ export function clearPeerNotes(board, notes, index) {
   if (!value || conflicts(board, index).length) return false;
   for (const peer of PEERS[index]) notes[peer] = notes[peer].filter(note => note !== value);
   return true;
+}
+
+export function allCandidateNotes(board) {
+  return board.map((value, index) => value ? [] : values(candidateMask(board, index)));
 }
