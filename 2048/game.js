@@ -73,7 +73,7 @@ function validRun(run) {
     run.moves >= 0 &&
     run.tools &&
     ["undo", "swap", "delete"].every((name) =>
-      Number.isInteger(run.tools[name]) && run.tools[name] >= 0 && run.tools[name] <= 9,
+      Number.isSafeInteger(run.tools[name]) && run.tools[name] >= 0,
     )
   );
 }
@@ -213,7 +213,7 @@ function move(direction) {
     for (const value of result.mergedValues) {
       if (value >= 512) {
         for (const tool of Object.keys(run.tools)) {
-          run.tools[tool] = Math.min(9, run.tools[tool] + 1);
+          run.tools[tool] += 1;
         }
         toast(t("earned", { value }));
       }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "junwen-2048-v4";
+const CACHE_NAME = "junwen-2048-v5";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./game.js", "./i18n.js", "./engine.js", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
