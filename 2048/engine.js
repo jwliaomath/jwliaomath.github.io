@@ -1,6 +1,12 @@
 export const SIZE = 4;
 export const GOAL = 2048;
 
+// 512 earns one use; each doubling earns one additional use.
+export function powerUpReward(value) {
+  if (!Number.isSafeInteger(value) || value < 512 || !Number.isInteger(Math.log2(value))) return 0;
+  return Math.log2(value) - 8;
+}
+
 export function emptyCells(board) {
   return board.flatMap((value, index) => (value === 0 ? [index] : []));
 }

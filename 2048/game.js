@@ -1,4 +1,4 @@
-import { GOAL, hasMoves, isValidBoard, moveBoard, newBoard, spawnTile } from "./engine.js";
+import { GOAL, hasMoves, isValidBoard, moveBoard, newBoard, powerUpReward, spawnTile } from "./engine.js";
 import { applyStaticLanguage, language, setLanguage, t } from "./i18n.js";
 
 const STORAGE_KEY = "junwen-2048-v1";
@@ -43,7 +43,7 @@ const tutorialSteps = [
   },
   {
     title: { zh: "按自己的节奏玩", en: "Choose your style" },
-    copy: { zh: "经典模式遵循原版规则，不提供工具。辅助模式可以撤销、交换或删除方块；合成 512 或更大数字时会补充工具次数。两个模式的进度分别保存。", en: "Classic mode has no power-ups. Assisted mode lets you undo, swap, or delete tiles. Merge a 512 or larger tile to earn more uses. Each mode saves separately." },
+    copy: { zh: "辅助模式可撤销、交换或删除方块。合成 512、1024、2048，分别为每种工具增加 1、2、3 次；此后数字每翻倍，奖励再加 1 次。同一步的奖励累加，次数不设上限；撤销会收回该步奖励。经典模式不提供工具，两种模式分别保存。", en: "Assisted mode offers undo, swap, and delete. Merge 512, 1024, or 2048 to earn 1, 2, or 3 uses of each tool. Each further doubling adds one more use. Rewards in one move add up, with no use limit; undo removes that move's reward. Classic mode has no tools. Each mode saves separately." },
     before: [128, 128, 256, 256],
     after: [256, 512, 0, 0],
     arrow: "←",
@@ -71,6 +71,7 @@ function validRun(run) {
     run.score >= 0 &&
     Number.isSafeInteger(run.moves) &&
     run.moves >= 0 &&
+    (run.rewardUses === undefined || (Number.isSafeInteger(run.rewardUses) && run.rewardUses >= 0)) &&
     run.tools &&
     ["undo", "swap", "delete"].every((name) =>
       Number.isSafeInteger(run.tools[name]) && run.tools[name] >= 0,
@@ -148,8 +149,8 @@ function snapshot(run) {
   };
 }
 
-function remember(run) {
-  run.history.push(snapshot(run));
+function remember(run, rewardUses = 0) {
+  run.history.push({ ...snapshot(run), rewardUses });
   if (run.history.length > 30) run.history.shift();
 }
 
@@ -203,21 +204,17 @@ function move(direction) {
   if (run.won && !run.keepPlaying) return showResult("win");
   const result = moveBoard(run.board, direction);
   if (!result.moved) return;
-  remember(run);
+  const rewardedTiles = state.mode === "assist" ? result.mergedValues.filter((value) => powerUpReward(value) > 0) : [];
+  const rewardUses = rewardedTiles.reduce((sum, value) => sum + powerUpReward(value), 0);
+  remember(run, rewardUses);
   selectedTool = null;
   swapFirst = null;
   run.board = spawnTile(result.board);
   run.score += result.gained;
   run.moves += 1;
-  if (state.mode === "assist") {
-    for (const value of result.mergedValues) {
-      if (value >= 512) {
-        for (const tool of Object.keys(run.tools)) {
-          run.tools[tool] += 1;
-        }
-        toast(t("earned", { value }));
-      }
-    }
+  if (rewardUses > 0) {
+    for (const tool of TOOL_NAMES) run.tools[tool] += rewardUses;
+    toast(t("earned", { value: rewardedTiles[0], uses: rewardUses, count: rewardedTiles.length }));
   }
   finishAction(run);
 }
@@ -228,10 +225,13 @@ function undo() {
     toast(t("noUndo"));
     return;
   }
-  const charges = run.tools.undo - 1;
   const previous = run.history.pop();
+  // Older saves have no reward metadata and retain their original undo behaviour.
+  // Revoke new rewards as well as spending a use, so replaying a merge cannot farm tools.
+  const charges = Math.max(0, run.tools.undo - 1 - (previous.rewardUses || 0));
+  const { rewardUses: previousRewardUses, ...previousRun } = previous;
   const history = run.history;
-  state.games.assist = { ...previous, history, tools: { ...previous.tools, undo: charges } };
+  state.games.assist = { ...previousRun, history, tools: { ...previous.tools, undo: charges } };
   selectedTool = null;
   swapFirst = null;
   closeResult();

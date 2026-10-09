@@ -15,7 +15,8 @@ const messages = {
     gameLabel: "2048 游戏", eyebrow: "数字合成游戏", heading: "合并方块，达到 <span>2048</span>",
     score: "本局得分", best: "最高得分", boardLabel: "4 乘 4 的 2048 游戏棋盘",
     sideLabel: "游戏模式和工具", modeHeading: "游戏模式", switchAnytime: "随时切换",
-    assisted: "辅助模式", classic: "经典模式", toolsHeading: "辅助工具", replenish: "合成 512 可补充次数",
+    assisted: "辅助模式", classic: "经典模式", toolsHeading: "辅助工具", replenish: "512 起可补充次数",
+    rewardRule: "合成 512 / 1024 / 2048：每种工具 +1 / +2 / +3 次。之后数字每翻倍，奖励再加 1 次。",
     undo: "撤销", swap: "交换", delete: "删除", undoLabel: "撤销上一步",
     swapLabel: "交换两个方块", deleteLabel: "删除同数字方块",
     quickStart: "快速上手", guide1: "朝一个方向移动，所有方块会一起滑动。",
@@ -41,7 +42,9 @@ const messages = {
     progress: ({ step, total }) => `第 ${step} 步 / 共 ${total} 步`,
     winCopy: ({ score }) => `本局得分 ${score}。还可以继续挑战更高数字。`,
     lossCopy: ({ score }) => `本局得分 ${score}。再试一次，或使用剩余的撤销次数。`,
-    earned: ({ value }) => `合成 ${value}！每种工具增加 1 次`,
+    earned: ({ value, uses, count }) => count > 1
+      ? `本步合成 ${count} 个大数字！每种工具增加 ${uses} 次`
+      : `合成 ${value}！每种工具增加 ${uses} 次`,
     noCharges: ({ tool }) => `${tool}次数已用完`,
     deleted: ({ value }) => `已删除所有 ${value} 方块`,
   },
@@ -53,6 +56,7 @@ const messages = {
     score: "Score", best: "Best", boardLabel: "4 by 4 2048 game board",
     sideLabel: "Game modes and tools", modeHeading: "Game mode", switchAnytime: "Switch anytime",
     assisted: "Assisted", classic: "Classic", toolsHeading: "Power-ups", replenish: "Merge 512+ to recharge",
+    rewardRule: "Merge 512 / 1024 / 2048: +1 / +2 / +3 uses of each tool. Each further doubling adds one more use.",
     undo: "Undo", swap: "Swap", delete: "Delete", undoLabel: "Undo the previous move",
     swapLabel: "Swap two tiles", deleteLabel: "Delete tiles with the same number",
     quickStart: "Quick start", guide1: "Move in one direction to slide every tile.",
@@ -78,7 +82,9 @@ const messages = {
     progress: ({ step, total }) => `Step ${step} of ${total}`,
     winCopy: ({ score }) => `Score: ${score}. You can keep going for a higher tile.`,
     lossCopy: ({ score }) => `Score: ${score}. Try again, or use an undo if you have one.`,
-    earned: ({ value }) => `Merged ${value}! +1 use for each power-up`,
+    earned: ({ value, uses, count }) => count > 1
+      ? `Merged ${count} large tiles! +${uses} uses for each power-up`
+      : `Merged ${value}! +${uses} ${uses === 1 ? "use" : "uses"} for each power-up`,
     noCharges: ({ tool }) => `No ${tool.toLowerCase()} uses left`,
     deleted: ({ value }) => `Deleted all ${value} tiles`,
   },
@@ -94,7 +100,7 @@ const staticSelectors = {
   "#swap-button span:nth-child(2)": "swap", "#delete-button span:nth-child(2)": "delete",
   ".help-card .section-heading h2": "quickStart", ".help-card li:nth-child(1)": "guide1",
   ".help-card li:nth-child(2)": "guide2", ".help-card li:nth-child(3)": "guide3",
-  "#guide-link": "guideLink", "#tool-hint": "toolHint", ".site-footer span:nth-child(1)": "footerSave",
+  "#guide-link": "guideLink", "#reward-rule": "rewardRule", "#tool-hint": "toolHint", ".site-footer span:nth-child(1)": "footerSave",
   ".site-footer span:nth-child(2)": "footerCredit", "#tutorial-prev": "previous",
   "#confirm-title": "confirmTitle", "#confirm-dialog .dialog-inner > p": "confirmCopy",
   "#cancel-new": "cancelNew", "#confirm-new": "confirmNew", "#result-new": "resultNew",
