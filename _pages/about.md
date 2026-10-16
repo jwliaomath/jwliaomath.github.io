@@ -36,3 +36,7 @@ refinement when reconstructed maps are weak, anisotropic, or incomplete.
 
 **Research interests:** AI for science, protein structure prediction,
 computational imaging.
+
+<script type="application/ld+json">
+{{ site.data.profile_identity | jsonify }}
+</script>
