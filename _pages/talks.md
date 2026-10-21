@@ -7,7 +7,7 @@ nav: true
 nav_order: 5
 ---
 
-## Upcoming Talks
+## Talks
 
 ### CoCoFold: Protein Structure Refinement from Limited Cryo-EM Observations
 
@@ -19,7 +19,7 @@ Session TM17: Computational Systems Biology in the Era of Artificial Intelligenc
 
 09:40–10:00, N03A, North Building, 3rd floor.
 
-To be presented by **Junwen Liao** on behalf of Prof. Chenglong Bao.
+Presented by **Junwen Liao** on behalf of Prof. Chenglong Bao.
 
 [Conference](https://conf.orsc.org.cn/conferences/detail?id=51) · [Program](https://conf.orsc.org.cn/storage/files/20261015/5vywRJNMbbQl8PN2E5FEDSsHpU2XDLwQI6VGWxEU.pdf#page=36) · [Abstracts](https://conf.orsc.org.cn/storage/files/20261012/sn39rFZ5xGK45q42p9vxLKDBCIy67v7N8DQJ9H3P.pdf#page=76)
 
