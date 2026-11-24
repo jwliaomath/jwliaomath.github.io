@@ -6,4 +6,4 @@ inline: true
 related_posts: false
 ---
 
-Presented our work on **CoCoFold** at [ORSC 2026](https://conf.orsc.org.cn/conferences/detail?id=51) in Suzhou, China. [Talk details]({% link _pages/talks.md %}).
+Presented our work on **CoCoFold** at [ORSC 2026](https://conf.orsc.org.cn/conferences/detail?id=51) in Suzhou, China. [Talk details]({% link _pages/talks.md %}#cocofold-protein-structure-refinement-from-limited-cryo-em-observations).

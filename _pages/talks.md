@@ -2,12 +2,20 @@
 layout: page
 title: talks & posters
 permalink: /talks/
-description: Conference talks and poster presentations.
+description: Talks and poster presentations.
 nav: true
 nav_order: 5
 ---
 
 ## Talks
+
+### CoCoFold: Protein Structure Refinement from Limited Cryo-EM Observations {#cas-siam-student-chapter-2026}
+
+**24 November 2026 · Seminar talk**
+
+CAS SIAM Student Chapter Seminar · Academy of Mathematics and Systems Science, Chinese Academy of Sciences
+
+15:00–15:50, N202.
 
 ### CoCoFold: Protein Structure Refinement from Limited Cryo-EM Observations
 
